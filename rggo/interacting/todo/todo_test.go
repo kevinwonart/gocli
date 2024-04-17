@@ -3,7 +3,8 @@ package todo_test
 import (
 	"os"
 	"testing"
-	"todo"
+
+	"gocli/rggo/interacting/todo"
 )
 
 func TestAdd(t *testing.T) {
