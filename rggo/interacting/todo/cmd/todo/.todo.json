@@ -1,1 +1,1 @@
-[{"Task":"Including item from Args","Done":false},{"Task":"This item comes from STDIN","Done":true}]
+[{"Task":"Including item from Args","Done":false},{"Task":"second task","Done":true},{"Task":"third task","Done":false},{"Task":"fourth","Done":true},{"Task":"fifth","Done":false}]

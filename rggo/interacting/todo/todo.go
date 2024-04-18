@@ -31,6 +31,7 @@ func (l *List) Complete(i int) error {
 
 	return nil
 }
+
 func (l *List) Delete(i int) error {
 	ls := *l
 	if i <= 0 || i > len(ls) {
@@ -66,14 +67,21 @@ func (l *List) Get(filename string) error {
 	return json.Unmarshal(file, l)
 }
 
-func (l *List) String() string {
+func (l *List) PrintList(verbose bool, clean bool) string {
 	formatted := ""
 	for k, t := range *l {
 		prefix := " "
 		if t.Done {
 			prefix = "X "
 		}
-		formatted += fmt.Sprintf("%s%d: %s\n", prefix, k+1, t.Task)
+		if clean && t.Done {
+			continue
+		}
+		if verbose {
+			formatted += fmt.Sprintf("Adding Verbose: %s%d: %s\n", prefix, k+1, t.Task)
+		} else {
+			formatted += fmt.Sprintf("%s%d: %s\n", prefix, k+1, t.Task)
+		}
 	}
 	return formatted
 }

@@ -17,7 +17,10 @@ func main() {
 
 	add := flag.Bool("add", false, "Add task to the Todo List")
 	list := flag.Bool("list", false, "List all tasks")
+	clean := flag.Bool("clean", false, "List unfinished tasks if set true")
 	complete := flag.Int("complete", 0, "Items to be completed")
+	delete := flag.Int("delete", 0, "Delete todo item")
+	verbose := flag.Bool("verbose", false, "Set verbose")
 
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(),
@@ -40,7 +43,7 @@ func main() {
 
 	switch {
 	case *list:
-		fmt.Print(l)
+		fmt.Print(l.PrintList(*verbose, *clean))
 	case *complete > 0:
 		if err := l.Complete(*complete); err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -62,6 +65,16 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
+	case *delete > 0:
+		if err := l.Delete(*delete); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		if err := l.Save(todoFileName); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
 	default:
 		fmt.Fprintln(os.Stderr, "Invalid Option")
 		os.Exit(1)
