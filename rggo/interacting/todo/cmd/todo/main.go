@@ -25,7 +25,9 @@ func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(),
 			"Developed following the Pragmatic Bookshelf:\n")
+		fmt.Fprintln(flag.CommandLine.Output(), "Usage information:")
 		flag.PrintDefaults()
+		fmt.Fprintln(flag.CommandLine.Output(), "\nto set clean or verbose \"-clean=true\" \"-verbose=true\"")
 	}
 
 	flag.Parse()

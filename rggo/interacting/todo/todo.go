@@ -8,6 +8,7 @@ import (
 )
 
 type item struct {
+	Id   int
 	Task string
 	Done bool
 }

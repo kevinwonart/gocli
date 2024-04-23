@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	binName  = "todo"
-	fileName = ".todo.json"
+	binName  = "todo_test"
+	fileName = ".todo_test.json"
 )
 
 func TestMain(m *testing.M) {
@@ -28,6 +28,8 @@ func TestMain(m *testing.M) {
 		fmt.Fprintf(os.Stderr, "Cannot build tool %s: %s", binName, err)
 		os.Exit(1)
 	}
+
+	os.Setenv("TODO_FILENAME", fileName)
 
 	fmt.Println("Running tests...")
 	result := m.Run()
@@ -82,6 +84,19 @@ func TestTodoCLI(t *testing.T) {
 		expected := fmt.Sprintf(" 1: %s\n 2: %s\n", task, task2)
 		if expected != string(out) {
 			t.Errorf("Expected %q, got %q instead\n", expected, string(out))
+		}
+	})
+
+	t.Run("CompleteTasks", func(t *testing.T) {
+		taskID := "2"
+		cmd := exec.Command(cmdPath, "-complete", taskID)
+
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("Error executing command: %s\nOutput: %s", err, out)
+		}
+		if len(out) > 0 {
+			t.Errorf("Expected no output on successful task completion, got: %s", out)
 		}
 	})
 }
