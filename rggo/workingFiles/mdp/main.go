@@ -5,8 +5,11 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io"
 	"os"
-	//"path/filepath"
+	"os/exec"
+	"runtime"
+	"time"
 
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
@@ -31,6 +34,7 @@ const (
 func main() {
 	// Parse flags
 	filename := flag.String("file", "", "Markdown file to preview")
+	skipPreview := flag.Bool("s", false, "Skip auto-preview")
 	flag.Parse()
 
 	// If user did not provide input file, show usage
@@ -39,13 +43,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := run(*filename); err != nil {
+	if err := run(*filename, os.Stdout, *skipPreview); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func run(filename string) error {
+func run(filename string, out io.Writer, skipPreview bool) error {
 	// Read all the data from the input file and check for errors
 	input, err := os.ReadFile(filename)
 	if err != nil {
@@ -54,6 +58,7 @@ func run(filename string) error {
 
 	htmlData := parseContent(input)
 
+	//Create temporary file and check for errors
 	temp, err := os.CreateTemp("", "mdp*.html")
 	if err != nil {
 		return err
@@ -63,9 +68,19 @@ func run(filename string) error {
 	}
 
 	outName := temp.Name()
-	fmt.Println(outName)
 
-	return saveHTML(outName, htmlData)
+	fmt.Fprintln(out, outName)
+
+	if err := saveHTML(outName, htmlData); err != nil {
+		return err
+	}
+
+	if skipPreview {
+		return nil
+	}
+
+	defer os.Remove(outName)
+	return preview(outName)
 }
 
 func parseContent(input []byte) []byte {
@@ -88,4 +103,38 @@ func parseContent(input []byte) []byte {
 func saveHTML(outFname string, data []byte) error {
 	// Write the bytes to the file
 	return os.WriteFile(outFname, data, 0644)
+}
+
+func preview(fname string) error {
+	cName := ""
+	cParams := []string{}
+
+	// Define executable based on OS
+	switch runtime.GOOS {
+	case "linux":
+		cName = "xdg-open"
+	case "windows":
+		cName = "cmd.exe"
+		cParams = []string{"/C", "start"}
+	case "darwin":
+		cName = "open"
+	default:
+		return fmt.Errorf("OS not supported")
+	}
+	// Append filename to parameters slice
+	cParams = append(cParams, fname)
+
+	// Locate executable in PATH
+	cPath, err := exec.LookPath(cName)
+
+	if err != nil {
+		return err
+	}
+
+	// Open the file using default program
+	err = exec.Command(cPath, cParams...).Run()
+
+	// giGive the browser some time to open the file before deleting it
+	time.Sleep(2 * time.Second)
+	return err
 }
