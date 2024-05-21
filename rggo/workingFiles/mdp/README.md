@@ -42,7 +42,7 @@ You should see output indicating the installed version of Go.
 3. **Run the application**:
 
     ```sh
-    ./mdpreview -file=<path_to_markdown_file>
+    ./mdpreview -file <path_to_markdown_file>
     ```
 
     - `-file`: Specifies the path to the Markdown file to preview.
@@ -54,7 +54,7 @@ You should see output indicating the installed version of Go.
 To preview a Markdown file named `example.md`:
 
 ```sh
-./mdpreview -file=example.md
+./mdpreview -file example.md
 ```
 
 If you have a custom template named `custom_template.html`, you can use it like this:
